@@ -1,6 +1,13 @@
+// فقط یکبار اجرا شود
+let dropzoneInitialized = false;
 
-$(document).ready(function () {
-    // تنظیمات Select2
+$(document).ready(function() {
+    initializeSelect2();
+    initializeDropzone();
+    initializeFormHandlers();
+});
+
+function initializeSelect2() {
     if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined') {
         $('.select2').select2({
             theme: 'bootstrap-5',
@@ -12,67 +19,107 @@ $(document).ready(function () {
             }
         });
     }
+}
 
-    // تنظیمات Dropzone
-    if (typeof Dropzone !== 'undefined') {
+function initializeDropzone() {
+    if (typeof Dropzone !== 'undefined' && !dropzoneInitialized) {
+        // غیرفعال کردن auto discover
         Dropzone.autoDiscover = false;
-        new Dropzone("#productImages", {
-            url: "upload.php",
-            paramName: "file",
-            maxFiles: 5,
-            maxFilesize: 2,
-            acceptedFiles: "image/*",
-            dictDefaultMessage: '<div class="text-center"><i class="bi bi-cloud-upload display-4"></i><br>تصاویر را اینجا رها کنید یا کلیک کنید</div>',
-            addRemoveLinks: true,
-            dictRemoveFile: "حذف",
-            dictCancelUpload: "لغو",
-            init: function() {
-                this.on("success", function(file, response) {
-                    try {
-                        const data = JSON.parse(response);
-                        if (data.success) {
-                            file.serverFileName = data.filename;
-                            // اضافه کردن نام فایل به فرم
-                            const input = $('<input>', {
-                                type: 'hidden',
-                                name: 'uploaded_files[]',
-                                value: data.filename
-                            });
-                            $('#addProductForm').append(input);
+        
+        // اطمینان از وجود المان
+        const dropzoneElement = document.getElementById('productImages');
+        if (dropzoneElement) {
+            const myDropzone = new Dropzone("#productImages", {
+                url: "upload.php", // آدرس آپلود فایل
+                paramName: "file",
+                maxFiles: 5,
+                maxFilesize: 2,
+                acceptedFiles: "image/*",
+                addRemoveLinks: true,
+                dictDefaultMessage: '<div class="text-center"><i class="bi bi-cloud-upload display-4"></i><br>تصاویر را اینجا رها کنید یا کلیک کنید</div>',
+                dictRemoveFile: "حذف",
+                dictCancelUpload: "لغو",
+                init: function() {
+                    this.on("success", function(file, response) {
+                        try {
+                            const data = JSON.parse(response);
+                            if (data.success) {
+                                file.serverFileName = data.filename;
+                                const input = $('<input>', {
+                                    type: 'hidden',
+                                    name: 'uploaded_files[]',
+                                    value: data.filename
+                                });
+                                $('#addProductForm').append(input);
+                            }
+                        } catch (e) {
+                            console.error('Error parsing upload response:', e);
                         }
-                    } catch (e) {
-                        console.error('Error parsing upload response:', e);
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
+            dropzoneInitialized = true;
+        }
     }
+}
 
+function initializeFormHandlers() {
     // مدیریت واحد فرعی
     $('#hasSubUnit').on('change', function() {
-        $('#subUnitSection').slideToggle(300);
+        const subUnitSection = $('#subUnitSection');
+        if (this.checked) {
+            subUnitSection.slideDown(300);
+            // فعال کردن فیلدهای اجباری
+            $('input[name="sub_unit"], input[name="conversion_factor"]').prop('required', true);
+        } else {
+            subUnitSection.slideUp(300);
+            // غیرفعال کردن فیلدهای اجباری
+            $('input[name="sub_unit"], input[name="conversion_factor"]').prop('required', false);
+        }
     });
 
     // مدیریت کنترل موجودی - همیشه فعال
     $('#inventorySettings').show();
-    $('#inventoryControl').prop('checked', true).prop('disabled', true);
+    $('#inventoryControl')
+        .prop('checked', true)
+        .prop('disabled', true);
 
     // مدیریت کد حسابداری سفارشی
     $('#customCode').on('change', function() {
         const codeInput = $('input[name="custom_code"]');
-        codeInput.prop('readonly', !this.checked);
-        if (!this.checked) {
-            $.get('ajax/get_last_code.php', function(data) {
-                codeInput.val(data.code);
-            });
+        if (this.checked) {
+            codeInput.prop('readonly', false).val('');
         } else {
-            codeInput.val('');
+            codeInput.prop('readonly', true);
+            $.get('ajax/get_last_code.php')
+                .done(function(data) {
+                    codeInput.val(data.code);
+                })
+                .fail(function(error) {
+                    console.error('Error fetching accounting code:', error);
+                });
+        }
+    });
+
+    // فعال کردن/غیرفعال کردن فیلدهای مالیات فروش
+    $('#salesTax').on('change', function() {
+        $('input[name="sales_tax"]').prop('disabled', !this.checked);
+        if (!this.checked) {
+            $('input[name="sales_tax"]').val('');
+        }
+    });
+
+    // فعال کردن/غیرفعال کردن فیلدهای مالیات خرید
+    $('#purchaseTax').on('change', function() {
+        $('input[name="purchase_tax"]').prop('disabled', !this.checked);
+        if (!this.checked) {
+            $('input[name="purchase_tax"]').val('');
         }
     });
 
     // اعتبارسنجی فرم
     setupFormValidation();
-});
+}
 
 // تولید بارکد
 function generateBarcode() {
@@ -84,7 +131,9 @@ function generateBarcode() {
 function savePriceList() {
     $('#priceListModal input[type="number"]').each(function() {
         const mainInput = $(`input[name="${$(this).attr('name')}"]`);
-        if (mainInput.length) mainInput.val($(this).val());
+        if (mainInput.length) {
+            mainInput.val($(this).val());
+        }
     });
     $('#priceListModal').modal('hide');
 }
@@ -102,3 +151,14 @@ function setupFormValidation() {
         }, false);
     }
 }
+
+// مدیریت فرمت اعداد
+$(document).on('input', 'input[type="number"]', function() {
+    if ($(this).hasClass('price-input')) {
+        let value = this.value.replace(/[^\d]/g, '');
+        if (value) {
+            value = parseInt(value).toLocaleString('fa-IR');
+            $(this).val(value);
+        }
+    }
+});

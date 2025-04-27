@@ -7,7 +7,15 @@
     
     <!-- jQuery اول از همه لود شود -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- اسکریپت‌های مورد نیاز select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- بعد dropzone -->
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<!-- در نهایت اسکریپت خودمان -->
+<script src="assets/js/product.js"></script>
+
+
     <!-- استایل‌های اصلی -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -20,8 +28,7 @@
         <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet">
         <link href="assets/css/product.css" rel="stylesheet">
         
-        <!-- اسکریپت‌های مورد نیاز select2 -->
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+       
     <?php endif; ?>
 </head>
 <body>
