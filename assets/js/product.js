@@ -1,4 +1,5 @@
-$(document).ready(function() {
+
+$(document).ready(function () {
     // تنظیمات Select2
     if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined') {
         $('.select2').select2({
