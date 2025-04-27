@@ -568,7 +568,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-
 <script>
 // تنظیمات Dropzone
 Dropzone.autoDiscover = false;
@@ -583,11 +582,11 @@ new Dropzone("#productImages", {
 
 // فعال‌سازی Select2
 $(document).ready(function() {
-    // تنظیمات Select2
     $('.select2').select2({
-        theme: 'bootstrap-5',
-        dir: 'rtl'
+        theme: "bootstrap-5",
+        dir: "rtl"
     });
+});
 
 // مدیریت کد حسابداری سفارشی
 document.getElementById('customCode').addEventListener('change', function() {

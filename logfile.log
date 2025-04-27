@@ -261,3 +261,15 @@ Stack trace:
 [27-Apr-2025 22:09:28 Europe/Berlin] PHP Warning:  include(): Failed opening 'includes/header.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\hesabino\index.php on line 17
 [27-Apr-2025 22:09:28 Europe/Berlin] PHP Warning:  include(includes/footer.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\hesabino\index.php on line 42
 [27-Apr-2025 22:09:28 Europe/Berlin] PHP Warning:  include(): Failed opening 'includes/footer.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\hesabino\index.php on line 42
+[27-Apr-2025 22:22:12 Europe/Berlin] PHP Warning:  include(includes/header.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\hesabino\index.php on line 17
+[27-Apr-2025 22:22:12 Europe/Berlin] PHP Warning:  include(): Failed opening 'includes/header.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\hesabino\index.php on line 17
+[27-Apr-2025 22:22:12 Europe/Berlin] PHP Warning:  include(includes/footer.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\hesabino\index.php on line 42
+[27-Apr-2025 22:22:12 Europe/Berlin] PHP Warning:  include(): Failed opening 'includes/footer.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\hesabino\index.php on line 42
+[27-Apr-2025 22:22:22 Europe/Berlin] PHP Warning:  include(includes/header.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\hesabino\index.php on line 17
+[27-Apr-2025 22:22:22 Europe/Berlin] PHP Warning:  include(): Failed opening 'includes/header.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\hesabino\index.php on line 17
+[27-Apr-2025 22:22:22 Europe/Berlin] PHP Warning:  include(includes/footer.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\hesabino\index.php on line 42
+[27-Apr-2025 22:22:22 Europe/Berlin] PHP Warning:  include(): Failed opening 'includes/footer.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\hesabino\index.php on line 42
+[27-Apr-2025 22:22:30 Europe/Berlin] PHP Warning:  include(includes/header.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\hesabino\index.php on line 17
+[27-Apr-2025 22:22:30 Europe/Berlin] PHP Warning:  include(): Failed opening 'includes/header.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\hesabino\index.php on line 17
+[27-Apr-2025 22:22:30 Europe/Berlin] PHP Warning:  include(includes/footer.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\hesabino\index.php on line 42
+[27-Apr-2025 22:22:30 Europe/Berlin] PHP Warning:  include(): Failed opening 'includes/footer.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\hesabino\index.php on line 42
