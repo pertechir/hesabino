@@ -1,4 +1,7 @@
 <?php
+$page = 'add-product';
+require_once 'includes/header.php';
+
 // دریافت آخرین کد حسابداری
 function getLastAccountingCode($pdo) {
     $stmt = $pdo->query("SELECT accounting_code FROM products ORDER BY accounting_code DESC LIMIT 1");
@@ -91,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
     }
 }
 ?>
-<link rel="stylesheet" href="assets/css/product.css">
+
 <!-- اضافه کردن CSS های مورد نیاز -->
 <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet" type="text/css" />
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -459,3 +462,186 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
     </div>
 </div>
 
+<style>
+.card {
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    border: none;
+    margin-bottom: 25px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 15px 20px;
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.form-control, .form-select {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.25);
+}
+
+.btn {
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.nav-tabs {
+    border-bottom: 2px solid #f8f9fa;
+    margin-bottom: 25px;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #666;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-right: 5px;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #f8f9fa;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #3498db;
+    color: white;
+}
+
+.dropzone {
+    border: 2px dashed #3498db;
+    border-radius: 15px;
+    background: #f8f9fa;
+    min-height: 200px;
+    padding: 20px;
+}
+
+.select2-container--bootstrap-5 .select2-selection {
+    border-radius: 10px;
+    padding: 8px;
+}
+
+.form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    margin-left: 0.5em;
+}
+
+.modal-content {
+    border-radius: 15px;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-radius: 15px 15px 0 0;
+}
+
+#inventorySettings, #subUnitSection {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.form-check-input:checked {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+</style>
+<!-- اضافه کردن اسکریپت‌های مورد نیاز -->
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// تنظیمات Dropzone
+Dropzone.autoDiscover = false;
+new Dropzone("#productImages", {
+    url: "upload.php",
+    acceptedFiles: "image/*",
+    maxFiles: 5,
+    maxFilesize: 2,
+    dictDefaultMessage: "تصاویر را اینجا رها کنید یا کلیک کنید",
+    addRemoveLinks: true
+});
+
+// فعال‌سازی Select2
+$(document).ready(function() {
+    $('.select2').select2({
+        theme: "bootstrap-5",
+        dir: "rtl"
+    });
+});
+
+// مدیریت کد حسابداری سفارشی
+document.getElementById('customCode').addEventListener('change', function() {
+    const codeInput = document.querySelector('input[name="custom_code"]');
+    codeInput.readOnly = !this.checked;
+    if (!this.checked) {
+        codeInput.value = '<?php echo getLastAccountingCode($pdo); ?>';
+    } else {
+        codeInput.value = '';
+    }
+});
+
+// مدیریت واحد فرعی
+document.getElementById('hasSubUnit').addEventListener('change', function() {
+    document.getElementById('subUnitSection').style.display = this.checked ? 'block' : 'none';
+});
+
+// مدیریت کنترل موجودی
+document.getElementById('inventoryControl').addEventListener('change', function() {
+    document.getElementById('inventorySettings').style.display = this.checked ? 'block' : 'none';
+});
+
+// تولید بارکد
+function generateBarcode() {
+    const timestamp = new Date().getTime().toString().slice(-12);
+    document.querySelector('input[name="barcode"]').value = timestamp;
+}
+
+// ذخیره لیست قیمت
+function savePriceList() {
+    // انتقال مقادیر به فرم اصلی
+    const modal = document.getElementById('priceListModal');
+    const inputs = modal.querySelectorAll('input[type="number"]');
+    inputs.forEach(input => {
+        const mainInput = document.querySelector(`input[name="${input.name}"]`);
+        if (mainInput) mainInput.value = input.value;
+    });
+    
+    // بستن مودال
+    bootstrap.Modal.getInstance(modal).hide();
+}
+
+// اعتبارسنجی فرم
+(function () {
+    'use strict'
+    const form = document.getElementById('addProductForm');
+    form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    }, false);
+})();
+</script>
