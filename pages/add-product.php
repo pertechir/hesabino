@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
-
+<link rel="stylesheet" href="assets/css/product.css">
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
@@ -460,114 +460,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
 </div>
 
 <style>
-.card {
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.05);
-    border: none;
-    margin-bottom: 25px;
-}
 
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-    padding: 15px 20px;
-    border-radius: 15px 15px 0 0 !important;
-}
-
-.form-control, .form-select {
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.25);
-}
-
-.btn {
-    padding: 12px 25px;
-    border-radius: 10px;
-    font-weight: 500;
-}
-
-.btn-primary {
-    background-color: #3498db;
-    border: none;
-}
-
-.btn-primary:hover {
-    background-color: #2980b9;
-}
-
-.nav-tabs {
-    border-bottom: 2px solid #f8f9fa;
-    margin-bottom: 25px;
-}
-
-.nav-tabs .nav-link {
-    border: none;
-    color: #666;
-    padding: 12px 20px;
-    border-radius: 10px;
-    margin-right: 5px;
-}
-
-.nav-tabs .nav-link:hover {
-    background-color: #f8f9fa;
-}
-
-.nav-tabs .nav-link.active {
-    background-color: #3498db;
-    color: white;
-}
-
-.dropzone {
-    border: 2px dashed #3498db;
-    border-radius: 15px;
-    background: #f8f9fa;
-    min-height: 200px;
-    padding: 20px;
-}
-
-.select2-container--bootstrap-5 .select2-selection {
-    border-radius: 10px;
-    padding: 8px;
-}
-
-.form-switch .form-check-input {
-    width: 3em;
-    height: 1.5em;
-    margin-left: 0.5em;
-}
-
-.modal-content {
-    border-radius: 15px;
-}
-
-.modal-header {
-    background-color: #f8f9fa;
-    border-radius: 15px 15px 0 0;
-}
-
-#inventorySettings, #subUnitSection {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 15px;
-}
-
-.form-check-input:checked {
-    background-color: #3498db;
-    border-color: #3498db;
-}
 </style>
 <!-- اضافه کردن اسکریپت‌های مورد نیاز -->
-<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- ابتدا jQuery لود شود -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- سپس select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- بعد bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+<!-- در نهایت dropzone -->
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<!-- و در آخر اسکریپت خودمان -->
+<script src="assets/js/product.js"></script>
 <script>
 
 </script>

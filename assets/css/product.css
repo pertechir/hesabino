@@ -1,0 +1,101 @@
+.card {
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    border: none;
+    margin-bottom: 25px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 15px 20px;
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.form-control, .form-select {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.25);
+}
+
+.btn {
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.nav-tabs {
+    border-bottom: 2px solid #f8f9fa;
+    margin-bottom: 25px;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #666;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-right: 5px;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #f8f9fa;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #3498db;
+    color: white;
+}
+
+.dropzone {
+    border: 2px dashed #3498db;
+    border-radius: 15px;
+    background: #f8f9fa;
+    min-height: 200px;
+    padding: 20px;
+}
+
+.select2-container--bootstrap-5 .select2-selection {
+    border-radius: 10px;
+    padding: 8px;
+}
+
+.form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    margin-left: 0.5em;
+}
+
+.modal-content {
+    border-radius: 15px;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-radius: 15px 15px 0 0;
+}
+
+#inventorySettings, #subUnitSection {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.form-check-input:checked {
+    background-color: #3498db;
+    border-color: #3498db;
+}
