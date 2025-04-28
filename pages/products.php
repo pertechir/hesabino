@@ -1,119 +1,112 @@
 <?php
-// بررسی درخواست افزودن محصول جدید
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
-    $name = $_POST['name'] ?? '';
-    $price = $_POST['price'] ?? '';
-    $category = $_POST['category'] ?? '';
-    $description = $_POST['description'] ?? '';
-    
-    if (!empty($name) && !empty($price)) {
-        $stmt = $pdo->prepare("INSERT INTO products (name, price, category_id, description) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$name, $price, $category, $description]);
-        $success_message = "محصول با موفقیت افزوده شد.";
-    }
+$page = 'list-products';
+require_once 'includes/header.php';
+$pageTitle = 'لیست محصولات';
+
+// دریافت لیست محصولات از دیتابیس
+try {
+    $products = $pdo->query("SELECT * FROM products")->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $error_message = "خطا در دریافت لیست محصولات: " . $e->getMessage();
+    error_log("Error fetching products: " . $e->getMessage());
 }
 ?>
 
-<div class="container">
+<!-- اضافه کردن استایل‌های DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+
+<div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">لیست محصولات</h5>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                        <i class="bi bi-plus-lg"></i>
-                        افزودن محصول
-                    </button>
+                    <a href="add-product.php" class="btn btn-outline-light">
+                        <i class="bi bi-plus-circle"></i> افزودن محصول جدید
+                    </a>
                 </div>
                 <div class="card-body">
-                    <?php if (isset($success_message)): ?>
-                        <div class="alert alert-success">
-                            <?php echo $success_message; ?>
+                    <?php if (!empty($products)) : ?>
+                        <div class="table-responsive">
+                            <table id="productTable" class="table table-bordered table-hover table-striped align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>نام محصول</th>
+                                        <th>کد حسابداری</th>
+                                        <th>بارکد</th>
+                                        <th>دسته‌بندی</th>
+                                        <th>قیمت فروش (ریال)</th>
+                                        <th>قیمت خرید (ریال)</th>
+                                        <th>واحد اصلی</th>
+                                        <th>موجودی فعلی</th>
+                                        <th>نقطه سفارش</th>
+                                        <th>مالیات فروش (%)</th>
+                                        <th>مالیات خرید (%)</th>
+                                        <th>عملیات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($products as $index => $product) : ?>
+                                        <tr>
+                                            <td><?= $index + 1 ?></td>
+                                            <td><?= htmlspecialchars($product['name']) ?></td>
+                                            <td><?= htmlspecialchars($product['accounting_code']) ?></td>
+                                            <td><?= htmlspecialchars($product['barcode']) ?></td>
+                                            <td><?= htmlspecialchars($product['category_id']) ?></td>
+                                            <td><?= number_format($product['sales_price']) ?></td>
+                                            <td><?= number_format($product['purchase_price']) ?></td>
+                                            <td><?= htmlspecialchars($product['main_unit']) ?></td>
+                                            <td><?= number_format($product['current_stock']) ?></td>
+                                            <td><?= number_format($product['reorder_point']) ?></td>
+                                            <td><?= $product['sales_tax'] ?></td>
+                                            <td><?= $product['purchase_tax'] ?></td>
+                                            <td>
+                                                <a href="edit-product.php?id=<?= $product['id'] ?>" class="btn btn-sm btn-warning">
+                                                    <i class="bi bi-pencil-square"></i> ویرایش
+                                                </a>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteProduct(<?= $product['id'] ?>)">
+                                                    <i class="bi bi-trash"></i> حذف
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else : ?>
+                        <div class="alert alert-warning text-center">
+                            هیچ محصولی یافت نشد.
                         </div>
                     <?php endif; ?>
-                    
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>کد</th>
-                                    <th>نام محصول</th>
-                                    <th>قیمت</th>
-                                    <th>دسته‌بندی</th>
-                                    <th>عملیات</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                $stmt = $pdo->query("SELECT p.*, c.name as category_name 
-                                                   FROM products p 
-                                                   LEFT JOIN categories c ON p.category_id = c.id
-                                                   ORDER BY p.id DESC");
-                                while ($row = $stmt->fetch()): ?>
-                                    <tr>
-                                        <td><?php echo $row['id']; ?></td>
-                                        <td><?php echo htmlspecialchars($row['name']); ?></td>
-                                        <td><?php echo number_format($row['price']); ?> تومان</td>
-                                        <td><?php echo htmlspecialchars($row['category_name'] ?? '-'); ?></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal افزودن محصول -->
-<div class="modal fade" id="addProductModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">افزودن محصول جدید</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">نام محصول</label>
-                        <input type="text" name="name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">قیمت (تومان)</label>
-                        <input type="number" name="price" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">دسته‌بندی</label>
-                        <select name="category" class="form-control">
-                            <option value="">انتخاب دسته‌بندی</option>
-                            <?php
-                            $categories = $pdo->query("SELECT * FROM categories ORDER BY name");
-                            while ($category = $categories->fetch()) {
-                                echo "<option value='{$category['id']}'>{$category['name']}</option>";
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">توضیحات</label>
-                        <textarea name="description" class="form-control" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                    <button type="submit" name="add_product" class="btn btn-primary">ذخیره</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<!-- اضافه کردن اسکریپت‌های DataTables -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#productTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/fa.json"
+            },
+            "pageLength": 10,
+            "ordering": true,
+            "searching": true
+        });
+    });
+
+    function deleteProduct(productId) {
+        if (confirm("آیا از حذف این محصول مطمئن هستید؟")) {
+            // ارسال درخواست حذف به سرور
+            window.location.href = `delete-product.php?id=${productId}`;
+        }
+    }
+</script>
