@@ -1,101 +1,158 @@
-.card {
+/* استایل‌های مربوط به آپلود تصویر و ویدیو */
+.media-upload-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background: #f8f9fa;
     border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.media-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.media-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.media-upload-container:hover .media-overlay {
+    opacity: 1;
+}
+
+.media-upload-btn {
+    background: white;
+    color: #3498db;
     border: none;
-    margin-bottom: 25px;
-}
-
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-    padding: 15px 20px;
-    border-radius: 15px 15px 0 0 !important;
-}
-
-.form-control, .form-select {
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.25);
-}
-
-.btn {
     padding: 12px 25px;
     border-radius: 10px;
     font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.media-upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* استایل‌های تب‌ها */
+.product-tabs {
+    border: none;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+.product-tabs .nav-link {
+    padding: 1rem 1.5rem;
+    color: #666;
+    border: none;
+    border-radius: 10px;
+    margin-right: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.product-tabs .nav-link:hover {
+    background: #f8f9fa;
+    color: #3498db;
+}
+
+.product-tabs .nav-link.active {
+    background: #3498db;
+    color: white;
+}
+
+.product-tabs .nav-link i {
+    margin-right: 0.5rem;
+}
+
+/* استایل‌های فرم */
+.form-floating {
+    margin-bottom: 1.5rem;
+}
+
+.form-floating > .form-control {
+    padding: 1.5rem 1rem;
+    height: calc(3.5rem + 2px);
+}
+
+.form-floating > label {
+    padding: 1rem;
+}
+
+.form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.25rem rgba(52,152,219,0.25);
+}
+
+/* استایل‌های کارت */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.card-header {
+    background: none;
+    border-bottom: 1px solid #eee;
+    padding: 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* دکمه‌ها */
+.btn {
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .btn-primary {
-    background-color: #3498db;
+    background: #3498db;
     border: none;
 }
 
 .btn-primary:hover {
-    background-color: #2980b9;
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52,152,219,0.3);
 }
 
-.nav-tabs {
-    border-bottom: 2px solid #f8f9fa;
-    margin-bottom: 25px;
+/* انیمیشن‌ها */
+.fade-enter {
+    opacity: 0;
 }
 
-.nav-tabs .nav-link {
-    border: none;
-    color: #666;
-    padding: 12px 20px;
-    border-radius: 10px;
-    margin-right: 5px;
+.fade-enter-active {
+    opacity: 1;
+    transition: opacity 300ms ease-in;
 }
 
-.nav-tabs .nav-link:hover {
-    background-color: #f8f9fa;
+.fade-exit {
+    opacity: 1;
 }
 
-.nav-tabs .nav-link.active {
-    background-color: #3498db;
-    color: white;
-}
-
-.dropzone {
-    border: 2px dashed #3498db;
-    border-radius: 15px;
-    background: #f8f9fa;
-    min-height: 200px;
-    padding: 20px;
-}
-
-.select2-container--bootstrap-5 .select2-selection {
-    border-radius: 10px;
-    padding: 8px;
-}
-
-.form-switch .form-check-input {
-    width: 3em;
-    height: 1.5em;
-    margin-left: 0.5em;
-}
-
-.modal-content {
-    border-radius: 15px;
-}
-
-.modal-header {
-    background-color: #f8f9fa;
-    border-radius: 15px 15px 0 0;
-}
-
-#inventorySettings, #subUnitSection {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 15px;
-}
-
-.form-check-input:checked {
-    background-color: #3498db;
-    border-color: #3498db;
+.fade-exit-active {
+    opacity: 0;
+    transition: opacity 300ms ease-in;
 }

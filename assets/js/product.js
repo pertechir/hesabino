@@ -265,3 +265,41 @@ function formatNumber(input) {
         input.value = parseInt(value).toLocaleString('fa-IR');
     }
 }
+// اضافه کردن در انتهای فایل
+function initMediaPreviews() {
+    // پیش‌نمایش تصویر
+    $('#imageUpload').change(function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#productImage').attr('src', e.target.result);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تصویر آپلود شد',
+                    text: 'تصویر با موفقیت بارگذاری شد',
+                    confirmButtonText: 'تایید'
+                });
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // پیش‌نمایش ویدیو
+    $('#videoUpload').change(function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#productVideo').attr('src', e.target.result);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ویدیو آپلود شد',
+                    text: 'ویدیو با موفقیت بارگذاری شد',
+                    confirmButtonText: 'تایید'
+                });
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+}

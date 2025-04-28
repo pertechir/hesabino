@@ -6,14 +6,15 @@
         <i class="bi bi-house-fill"></i>
         داشبورد
     </a>
+        <a href="?page=add-product" class="nav-link">
+        <i class="bi bi-plus-circle"></i>
+        افزودن محصول جدید
+    </a>
     <a href="?page=products" class="nav-link">
         <i class="bi bi-box-seam"></i>
         لیست محصولات
     </a>
-    <a href="?page=add-product" class="nav-link">
-        <i class="bi bi-plus-circle"></i>
-        افزودن محصول جدید
-    </a>
+
     <a href="?page=services" class="nav-link">
         <i class="bi bi-gear"></i>
         خدمات

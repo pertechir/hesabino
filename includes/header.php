@@ -19,6 +19,7 @@
         <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
         <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet">
         <link href="assets/css/product.css" rel="stylesheet">
+         <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
     <?php endif; ?>
 </head>
 <body>
