@@ -11,7 +11,7 @@ try {
     $filePath = $data['filePath'];
     
     // بررسی امنیتی مسیر فایل
-    if (strpos($filePath, '..') !== false) {
+    if (strpos($filePath, '..') !== false || !strpos($filePath, 'uploads/products/')) {
         throw new Exception('Invalid file path');
     }
 

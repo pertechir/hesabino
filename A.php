@@ -59,45 +59,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
 
         // بروزرسانی محصول
         $sql = "UPDATE products SET 
-            name = ?, 
-            barcode = ?, 
-            category_id = ?, 
-            sales_price = ?, 
-            sales_description = ?, 
-            purchase_price = ?, 
-            purchase_description = ?, 
-            main_unit = ?, 
-            sub_unit = ?, 
-            conversion_factor = ?, 
-            initial_stock = ?, 
-            reorder_point = ?, 
-            minimum_stock = ?, 
-            maximum_stock = ?, 
-            minimum_order = ?, 
-            wait_time = ?, 
-            storage_location = ?, 
-            storage_note = ?, 
-            sales_tax = ?, 
-            purchase_tax = ?, 
-            tax_type = ?, 
-            tax_code = ?, 
-            tax_unit = ?, 
-            is_sales_taxable = ?, 
-            is_purchase_taxable = ?, 
-            inventory_control = ? 
-            WHERE id = ?";
+                name = :name, 
+                barcode = :barcode, 
+                category_id = :category_id, 
+                sales_price = :sales_price,
+                sales_description = :sales_description, 
+                purchase_price = :purchase_price, 
+                purchase_description = :purchase_description, 
+                main_unit = :main_unit, 
+                sub_unit = :sub_unit, 
+                conversion_factor = :conversion_factor, 
+                initial_stock = :initial_stock, 
+                reorder_point = :reorder_point, 
+                minimum_stock = :minimum_stock, 
+                maximum_stock = :maximum_stock, 
+                minimum_order = :minimum_order, 
+                wait_time = :wait_time, 
+                storage_location = :storage_location, 
+                storage_note = :storage_note, 
+                sales_tax = :sales_tax, 
+                purchase_tax = :purchase_tax, 
+                tax_type = :tax_type, 
+                tax_code = :tax_code, 
+                tax_unit = :tax_unit, 
+                is_sales_taxable = :is_sales_taxable, 
+                is_purchase_taxable = :is_purchase_taxable, 
+                inventory_control = :inventory_control 
+                WHERE id = :id";
+        
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(array_values($data));
+        $stmt->execute($data);
 
         // ذخیره تصاویر
-        if (isset($_POST['uploaded_files']) && is_array($_POST['uploaded_files'])) {
+        if (isset($_POST['uploaded_files'])) {
+            $uploadedFiles = json_decode($_POST['uploaded_files'], true);
             $stmt = $pdo->prepare("UPDATE products SET images = ? WHERE id = ?");
-            $stmt->execute([json_encode($_POST['uploaded_files']), $productId]);
+            $stmt->execute([json_encode($uploadedFiles), $productId]);
         }
 
         $pdo->commit();
         $_SESSION['success_message'] = "محصول با موفقیت بروزرسانی شد.";
-        header('Location: index.php?page=products');
+        header('Location: products.php');
         exit;
     } catch (Exception $e) {
         $pdo->rollBack();
@@ -105,36 +107,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
     }
 }
 
-// نمایش تصاویر فعلی محصول
+// دریافت تصاویر فعلی محصول
 $currentImages = !empty($product['images']) ? json_decode($product['images'], true) : [];
 ?>
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ویرایش محصول</title>
+    <title><?php echo $pageTitle; ?></title>
     
-    <!-- CSS های مورد نیاز -->
-    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
-
-
-        <!-- سایر meta tags و CSS ها -->
-    
-    <!-- اضافه کردن jQuery قبل از همه اسکریپت‌ها -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-    <!-- اضافه کردن Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    
-    <!-- اضافه کردن Dropzone -->
-    <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet" type="text/css" />
-    
-    <!-- سایر CSS ها -->
+    <!-- استایل‌های مورد نیاز -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet">
     <link href="assets/css/edit-product.css" rel="stylesheet">
 </head>
 <body>
@@ -476,68 +464,184 @@ $currentImages = !empty($product['images']) ? json_decode($product['images'], tr
         </div>
     </div>
 </div>
-<script src="assets/js/edit-product.js"></script>
-<!-- Scripts -->
+
+<!-- اسکریپت‌ها -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-// پیکربندی Dropzone
 Dropzone.autoDiscover = false;
+
 $(document).ready(function() {
-    // راه‌اندازی Select2
+    // پیکربندی Select2
     $('.select2').select2({
-        theme: 'bootstrap-5'
+        theme: 'bootstrap-5',
+        language: 'fa'
     });
 
     // پیکربندی Dropzone
+    var uploadedFiles = JSON.parse($("#uploadedFiles").val() || '[]');
     var myDropzone = new Dropzone("#productImages", {
         url: "upload.php",
-        acceptedFiles: "image/*",
+        paramName: "file",
         maxFilesize: 2,
         maxFiles: 5,
+        acceptedFiles: "image/*",
         addRemoveLinks: true,
-        dictDefaultMessage: "فایل‌ها را اینجا بکشید و رها کنید یا کلیک کنید",
+        dictDefaultMessage: "فایل‌های تصویر را اینجا بکشید و رها کنید یا کلیک کنید",
+        dictFallbackMessage: "مرورگر شما از کشیدن و رها کردن فایل پشتیبانی نمی‌کند",
+        dictFileTooBig: "حجم فایل بیش از حد مجاز است ({{filesize}}MB). حداکثر حجم مجاز: {{maxFilesize}}MB",
+        dictInvalidFileType: "این نوع فایل مجاز نیست",
+        dictResponseError: "خطا در آپلود فایل ({{statusCode}})",
+        dictCancelUpload: "لغو آپلود",
+        dictUploadCanceled: "آپلود لغو شد",
+        dictCancelUploadConfirmation: "آیا از لغو آپلود اطمینان دارید؟",
         dictRemoveFile: "حذف فایل",
-        success: function(file, response) {
-            if (response.success) {
-                var uploadedFiles = JSON.parse($("#uploadedFiles").val() || '[]');
-                uploadedFiles.push(response.filePath);
-                $("#uploadedFiles").val(JSON.stringify(uploadedFiles));
+        dictMaxFilesExceeded: "نمی‌توانید فایل بیشتری آپلود کنید",
+
+        init: function() {
+            // نمایش تصاویر موجود
+            if (uploadedFiles.length > 0) {
+                uploadedFiles.forEach(function(filePath) {
+                    var mockFile = {
+                        name: filePath.split('/').pop(),
+                        size: 12345,
+                        status: Dropzone.ADDED,
+                        accepted: true
+                    };
+                    
+                    myDropzone.emit("addedfile", mockFile);
+                    myDropzone.emit("thumbnail", mockFile, filePath);
+                    myDropzone.emit("complete", mockFile);
+                    myDropzone.files.push(mockFile);
+                });
             }
         },
+
+        success: function(file, response) {
+            if (response.success) {
+                uploadedFiles.push(response.filePath);
+                $("#uploadedFiles").val(JSON.stringify(uploadedFiles));
+                
+                // نمایش پیام موفقیت
+                Swal.fire({
+                    icon: 'success',
+                    title: 'موفقیت',
+                    text: 'فایل با موفقیت آپلود شد',
+                    confirmButtonText: 'تایید'
+                });
+            }
+        },
+
+        error: function(file, error) {
+            // نمایش پیام خطا
+            Swal.fire({
+                icon: 'error',
+                title: 'خطا',
+                text: error,
+                confirmButtonText: 'تایید'
+            });
+        },
+
         removedfile: function(file) {
-            var uploadedFiles = JSON.parse($("#uploadedFiles").val() || '[]');
             if (file.status === 'success') {
                 var response = JSON.parse(file.xhr.response);
                 var index = uploadedFiles.indexOf(response.filePath);
                 if (index !== -1) {
                     uploadedFiles.splice(index, 1);
                     $("#uploadedFiles").val(JSON.stringify(uploadedFiles));
-                    
+
                     // حذف فایل از سرور
-                    $.post('delete-image.php', {
-                        filePath: response.filePath
+                    $.ajax({
+                        url: 'delete-image.php',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ filePath: response.filePath }),
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'موفقیت',
+                                    text: 'فایل با موفقیت حذف شد',
+                                    confirmButtonText: 'تایید'
+                                });
+                            }
+                        },
+                        error: function() {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطا',
+                                text: 'خطا در حذف فایل',
+                                confirmButtonText: 'تایید'
+                            });
+                        }
                     });
                 }
             }
             file.previewElement.remove();
         }
     });
-
-    // نمایش تصاویر موجود در Dropzone
-    var currentImages = JSON.parse($("#uploadedFiles").val() || '[]');
-    currentImages.forEach(function(filePath) {
-        var mockFile = { name: filePath.split('/').pop(), size: 12345 };
-        myDropzone.emit("addedfile", mockFile);
-        myDropzone.emit("thumbnail", mockFile, filePath);
-        myDropzone.emit("complete", mockFile);
-        myDropzone.files.push(mockFile);
-    });
 });
+
+// حذف تصویر موجود
+function removeExistingImage(button) {
+    var container = button.closest('.image-container');
+    var filePath = container.dataset.path;
+    var uploadedFiles = JSON.parse($("#uploadedFiles").val() || '[]');
+    
+    Swal.fire({
+        title: 'آیا مطمئن هستید؟',
+        text: "این عملیات قابل بازگشت نیست!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'بله، حذف شود',
+        cancelButtonText: 'انصراف'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: 'delete-image.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ filePath: filePath }),
+                success: function(response) {
+                    if (response.success) {
+                        // حذف از آرایه
+                        var index = uploadedFiles.indexOf(filePath);
+                        if (index !== -1) {
+                            uploadedFiles.splice(index, 1);
+                            $("#uploadedFiles").val(JSON.stringify(uploadedFiles));
+                        }
+                        
+                        // حذف از DOM
+                        container.remove();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'موفقیت',
+                            text: 'تصویر با موفقیت حذف شد',
+                            confirmButtonText: 'تایید'
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطا',
+                        text: 'خطا در حذف تصویر',
+                        confirmButtonText: 'تایید'
+                    });
+                }
+            });
+        }
+    });
+}
 </script>
+
 </body>
 </html>

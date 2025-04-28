@@ -78,17 +78,91 @@ body {
     transform: translateY(-2px);
 }
 
-.btn-outline-light {
-    border-width: 2px;
-}
-
 /* استایل Dropzone */
 .dropzone {
-    border: 2px dashed #3498db;
+    border: 2px dashed #3498db !important;
+    border-radius: 10px !important;
+    min-height: 150px !important;
+    padding: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: white !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.dropzone:hover {
+    border-color: #2980b9 !important;
+    background-color: #f8f9fa !important;
+}
+
+.dropzone .dz-message {
+    margin: 0 !important;
+    font-size: 1.1em !important;
+    color: #6c757d !important;
+}
+
+.dropzone .dz-preview {
+    margin: 10px !important;
+}
+
+.dropzone .dz-preview .dz-image {
+    border-radius: 10px !important;
+    overflow: hidden !important;
+}
+
+.dropzone .dz-preview .dz-error-message {
+    min-width: 140px !important;
+}
+
+.dropzone .dz-preview.dz-image-preview {
+    background: transparent !important;
+}
+
+.dz-remove {
+    color: #dc3545 !important;
+    text-decoration: none !important;
+    margin-top: 5px !important;
+    display: inline-block !important;
+}
+
+.dz-remove:hover {
+    color: #c82333 !important;
+}
+
+/* استایل تصاویر موجود */
+.existing-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.image-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
     border-radius: 10px;
-    background: white;
-    min-height: 150px;
-    padding: 20px;
+    overflow: hidden;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-container .remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -96,79 +170,7 @@ body {
     transition: all 0.3s ease;
 }
 
-.dropzone:hover {
-    border-color: #2980b9;
-    background-color: #f8f9fa;
-}
-
-.dropzone .dz-message {
-    margin: 0;
-    font-size: 1.1em;
-    color: #6c757d;
-}
-
-/* استایل تصاویر */
-.img-thumbnail {
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    transition: all 0.3s ease;
-}
-
-.img-thumbnail:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* استایل Select2 */
-.select2-container--bootstrap-5 .select2-selection {
-    border-radius: 10px;
-    padding: 8px;
-}
-
-.select2-container--bootstrap-5 .select2-selection:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
-}
-
-/* استایل Switch */
-.form-switch .form-check-input {
-    width: 3em;
-    height: 1.5em;
-    margin-left: -3.5em;
-}
-
-.form-switch .form-check-input:checked {
-    background-color: #3498db;
-    border-color: #3498db;
-}
-
-/* استایل Input Group */
-.input-group {
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.input-group .form-control {
-    border-radius: 10px 0 0 10px;
-}
-
-.input-group .btn {
-    border-radius: 0 10px 10px 0;
-}
-
-/* استایل Card Body */
-.card-body {
-    padding: 20px;
-}
-
-/* استایل Alert */
-.alert {
-    border-radius: 10px;
-    border: none;
-    padding: 15px 20px;
-}
-
-.alert-danger {
-    background-color: #ff7675;
-    color: white;
+.image-container .remove-image:hover {
+    background-color: #dc3545;
+    transform: scale(1.1);
 }
