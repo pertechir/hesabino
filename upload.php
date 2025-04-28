@@ -34,12 +34,6 @@ try {
         throw new Exception('فایل آپلود شده یک تصویر معتبر نیست');
     }
 
-    list($width, $height) = $imageInfo;
-    if ($width > 2000 || $height > 2000) {
-        throw new Exception('ابعاد تصویر بیش از حد مجاز است (حداکثر 2000×2000 پیکسل)');
-    }
-
-    // ذخیره فایل
     if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
         // بهینه‌سازی تصویر
         $image = null;

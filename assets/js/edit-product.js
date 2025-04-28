@@ -1,10 +1,28 @@
-// اجرای کد پس از لود کامل صفحه
-document.addEventListener('DOMContentLoaded', function() {
-    // تنظیمات Select2
+
+Dropzone.autoDiscover = false;
+const dropzone = new Dropzone("#productImages", {
+    url: "upload.php",
+    acceptedFiles: "image/*",
+    maxFiles: 5,
+    maxFilesize: 2,
+    dictDefaultMessage: "تصاویر را اینجا بکشید و رها کنید یا کلیک کنید",
+    addRemoveLinks: true,
+    success: function (file, response) {
+        const uploadedFilesInput = document.getElementById('uploadedFiles');
+        uploadedFilesInput.value += (uploadedFilesInput.value ? ',' : '') + response.filePath;
+    }
+});
+
+function removeImage(button, filePath) {
+    button.parentElement.remove();
+    const uploadedFilesInput = document.getElementById('uploadedFiles');
+    uploadedFilesInput.value = uploadedFilesInput.value.split(',').filter(file => file !== filePath).join(',');
+}
+
+$(document).ready(function() {
+    // راه‌اندازی Select2
     $('.select2').select2({
         theme: 'bootstrap-5',
-        width: '100%',
-        dir: 'rtl',
         language: {
             noResults: function() {
                 return "نتیجه‌ای یافت نشد";
@@ -12,192 +30,203 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // تنظیمات Dropzone
-    Dropzone.autoDiscover = false;
-    const dropzone = new Dropzone("#productImages", {
-        url: "upload.php",
-        acceptedFiles: "image/*",
-        maxFiles: 5,
-        maxFilesize: 2, // مگابایت
-        dictDefaultMessage: "تصاویر را اینجا بکشید و رها کنید یا کلیک کنید",
-        dictFileTooBig: "حجم فایل بیش از حد مجاز است ({{filesize}}MB). حداکثر حجم مجاز: {{maxFilesize}}MB.",
-        dictInvalidFileType: "این نوع فایل مجاز نیست.",
-        dictMaxFilesExceeded: "نمی‌توانید بیش از {{maxFiles}} فایل آپلود کنید.",
-        dictRemoveFile: "حذف",
-        dictCancelUpload: "لغو آپلود",
-        addRemoveLinks: true,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-        },
-        init: function() {
-            this.on("success", function(file, response) {
-                const uploadedFilesInput = document.getElementById('uploadedFiles');
-                const currentFiles = uploadedFilesInput.value ? uploadedFilesInput.value.split(',') : [];
-                currentFiles.push(response.filePath);
-                uploadedFilesInput.value = currentFiles.join(',');
-                
-                // اضافه کردن شناسه فایل به عنوان data attribute
-                file.previewElement.setAttribute('data-file-path', response.filePath);
-            });
 
-            this.on("removedfile", function(file) {
-                const filePath = file.previewElement.getAttribute('data-file-path');
-                if (filePath) {
-                    removeImageFromServer(filePath);
+
+
+
+
+
+
+
+    
+    // پیکربندی Dropzone
+    var uploadedFiles = JSON.parse($("#uploadedFiles").val() || '[]');
+    var myDropzone = new Dropzone("#productImages", {
+        url: "upload.php",
+        paramName: "file",
+        maxFilesize: 2,
+        maxFiles: 5,
+        acceptedFiles: "image/*",
+        addRemoveLinks: true,
+        dictDefaultMessage: '<div class="text-center"><i class="bi bi-cloud-upload display-4"></i><br>تصاویر را اینجا بکشید و رها کنید یا کلیک کنید</div>',
+        dictFallbackMessage: "مرورگر شما از کشیدن و رها کردن فایل پشتیبانی نمی‌کند",
+        dictFileTooBig: "حجم فایل بیش از حد مجاز است ({{filesize}}MB). حداکثر حجم مجاز: {{maxFilesize}}MB",
+        dictInvalidFileType: "این نوع فایل مجاز نیست",
+        dictResponseError: "خطا در آپلود فایل ({{statusCode}})",
+        dictCancelUpload: "لغو آپلود",
+        dictUploadCanceled: "آپلود لغو شد",
+        dictCancelUploadConfirmation: "آیا از لغو آپلود اطمینان دارید؟",
+        dictRemoveFile: "حذف فایل",
+        dictMaxFilesExceeded: "نمی‌توانید فایل بیشتری آپلود کنید",
+        
+        init: function() {
+            var dz = this;
+            
+            // نمایش تصاویر موجود در Dropzone
+            if (uploadedFiles.length > 0) {
+                uploadedFiles.forEach(function(filePath) {
+                    var mockFile = {
+                        name: filePath.split('/').pop(),
+                        size: 12345,
+                        accepted: true,
+                        status: Dropzone.ADDED
+                    };
+                    
+                    dz.emit("addedfile", mockFile);
+                    dz.emit("thumbnail", mockFile, filePath);
+                    dz.emit("complete", mockFile);
+                    dz.files.push(mockFile);
+                    
+                    // افزودن مسیر فایل به mockFile
+                    mockFile.filePath = filePath;
+                });
+                
+                // به‌روزرسانی تعداد فایل‌های مجاز
+                this.options.maxFiles = Math.max(0, this.options.maxFiles - uploadedFiles.length);
+            }
+        },
+
+        success: function(file, response) {
+            if (response.success) {
+                // افزودن مسیر فایل به آرایه
+                uploadedFiles.push(response.filePath);
+                $("#uploadedFiles").val(JSON.stringify(uploadedFiles));
+                
+                // ذخیره مسیر فایل در آبجکت فایل
+                file.filePath = response.filePath;
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'موفق',
+                    text: 'فایل با موفقیت آپلود شد',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        },
+
+        removedfile: function(file) {
+            var filePath = file.filePath;
+            if (filePath) {
+                Swal.fire({
+                    title: 'آیا مطمئن هستید؟',
+                    text: "این عملیات قابل بازگشت نیست!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'بله، حذف شود',
+                    cancelButtonText: 'انصراف'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: 'delete-image.php',
+                            method: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ filePath: filePath }),
+                            success: function(response) {
+                                if (response.success) {
+                                    // حذف از آرایه
+                                    var index = uploadedFiles.indexOf(filePath);
+                                    if (index !== -1) {
+                                        uploadedFiles.splice(index, 1);
+                                        $("#uploadedFiles").val(JSON.stringify(uploadedFiles));
+                                    }
+                                    
+                                    // حذف از DOM
+                                    file.previewElement.remove();
+                                    
+                                    // افزایش تعداد فایل‌های مجاز
+                                    myDropzone.options.maxFiles = Math.min(5, myDropzone.options.maxFiles + 1);
+                                    
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'موفق',
+                                        text: 'فایل با موفقیت حذف شد',
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                }
+                            },
+                            error: function() {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'خطا',
+                                    text: 'خطا در حذف فایل'
+                                });
+                            }
+                        });
+                    } else {
+                        // اگر کاربر انصراف داد، تصویر را به لیست برگردانیم
+                        myDropzone.emit("addedfile", file);
+                        myDropzone.emit("thumbnail", file, file.filePath);
+                        myDropzone.emit("complete", file);
+                        myDropzone.files.push(file);
+                    }
+                });
+            } else {
+                file.previewElement.remove();
+            }
+            return false;
+        },
+        
+        error: function(file, message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'خطا',
+                text: message
+            });
+        }
+    });
+});
+
+// حذف تصویر موجود
+function removeExistingImage(button) {
+    var container = button.closest('.image-container');
+    var filePath = container.dataset.image;
+    var uploadedFiles = JSON.parse($("#uploadedFiles").val() || '[]');
+    
+    Swal.fire({
+        title: 'آیا مطمئن هستید؟',
+        text: "این عملیات قابل بازگشت نیست!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'بله، حذف شود',
+        cancelButtonText: 'انصراف'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: 'delete-image.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ filePath: filePath }),
+                success: function(response) {
+                    if (response.success) {
+                        // حذف از آرایه
+                        var index = uploadedFiles.indexOf(filePath);
+                        if (index !== -1) {
+                            uploadedFiles.splice(index, 1);
+                            $("#uploadedFiles").val(JSON.stringify(uploadedFiles));
+                        }
+                        
+                        // حذف از DOM
+                        container.remove();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'موفق',
+                            text: 'تصویر با موفقیت حذف شد',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطا',
+                        text: 'خطا در حذف تصویر'
+                    });
                 }
             });
         }
     });
-
-    // فرم اعتبارسنجی
-    const form = document.getElementById('editProductForm');
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
-    }
-
-    // مدیریت فیلدهای مالیات
-    const salesTaxCheckbox = document.getElementById('salesTax');
-    const purchaseTaxCheckbox = document.getElementById('purchaseTax');
-    
-    if (salesTaxCheckbox) {
-        salesTaxCheckbox.addEventListener('change', function() {
-            const salesTaxInput = document.querySelector('input[name="sales_tax"]');
-            if (salesTaxInput) {
-                salesTaxInput.disabled = !this.checked;
-                if (!this.checked) salesTaxInput.value = '0';
-            }
-        });
-    }
-
-    if (purchaseTaxCheckbox) {
-        purchaseTaxCheckbox.addEventListener('change', function() {
-            const purchaseTaxInput = document.querySelector('input[name="purchase_tax"]');
-            if (purchaseTaxInput) {
-                purchaseTaxInput.disabled = !this.checked;
-                if (!this.checked) purchaseTaxInput.value = '0';
-            }
-        });
-    }
-});
-
-// تابع تولید بارکد
-function generateBarcode() {
-    const timestamp = Date.now().toString();
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    const barcode = timestamp.slice(-10) + random;
-    document.querySelector('input[name="barcode"]').value = barcode;
 }
-
-// تابع حذف تصویر
-function removeImage(button, filePath) {
-    if (confirm('آیا از حذف این تصویر اطمینان دارید؟')) {
-        button.parentElement.remove();
-        removeImageFromServer(filePath);
-        
-        // به‌روزرسانی لیست تصاویر در input مخفی
-        const uploadedFilesInput = document.getElementById('uploadedFiles');
-        const currentFiles = uploadedFilesInput.value ? uploadedFilesInput.value.split(',') : [];
-        const updatedFiles = currentFiles.filter(file => file !== filePath);
-        uploadedFilesInput.value = updatedFiles.join(',');
-    }
-}
-
-// تابع حذف تصویر از سرور
-function removeImageFromServer(filePath) {
-    fetch('delete-image.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-        },
-        body: JSON.stringify({ filePath: filePath })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.success) {
-            console.error('خطا در حذف تصویر:', data.message);
-        }
-    })
-    .catch(error => {
-        console.error('خطا در ارتباط با سرور:', error);
-    });
-}
-
-// تابع فرمت‌بندی اعداد
-function formatNumber(input) {
-    // حذف همه کاراکترهای غیر عددی
-    let value = input.value.replace(/[^\d]/g, '');
-    
-    // اضافه کردن کاما به اعداد
-    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    
-    // به‌روزرسانی مقدار input
-    input.value = value;
-}
-
-// تابع محاسبه قیمت با مالیات
-function calculateTaxPrice(price, taxPercentage) {
-    const taxAmount = (price * taxPercentage) / 100;
-    return price + taxAmount;
-}
-
-// تابع بررسی موجودی
-function checkInventory() {
-    const currentStock = parseInt(document.querySelector('input[name="initial_stock"]').value) || 0;
-    const minStock = parseInt(document.querySelector('input[name="minimum_stock"]').value) || 0;
-    const reorderPoint = parseInt(document.querySelector('input[name="reorder_point"]').value) || 0;
-
-    if (currentStock <= minStock) {
-        showAlert('هشدار موجودی', 'موجودی محصول کمتر از حداقل موجودی است!', 'warning');
-    } else if (currentStock <= reorderPoint) {
-        showAlert('هشدار موجودی', 'موجودی محصول به نقطه سفارش رسیده است!', 'info');
-    }
-}
-
-// تابع نمایش هشدار
-function showAlert(title, message, icon) {
-    Swal.fire({
-        title: title,
-        text: message,
-        icon: icon,
-        confirmButtonText: 'تایید',
-        customClass: {
-            container: 'rtl-alert',
-            title: 'rtl-alert-title',
-            content: 'rtl-alert-content',
-            confirmButton: 'rtl-alert-button'
-        }
-    });
-}
-
-// گوش دادن به تغییرات فیلدهای عددی برای فرمت‌بندی
-document.querySelectorAll('input[type="number"]').forEach(input => {
-    input.addEventListener('input', function() {
-        formatNumber(this);
-    });
-});
-
-// بررسی موجودی هنگام تغییر مقادیر مرتبط
-document.querySelectorAll('input[name="initial_stock"], input[name="minimum_stock"], input[name="reorder_point"]')
-    .forEach(input => {
-        input.addEventListener('change', checkInventory);
-    });
-
-// تنظیم رویداد برای محاسبه خودکار قیمت با مالیات
-document.querySelectorAll('input[name="sales_price"], input[name="sales_tax"]').forEach(input => {
-    input.addEventListener('input', function() {
-        const price = parseFloat(document.querySelector('input[name="sales_price"]').value.replace(/,/g, '')) || 0;
-        const tax = parseFloat(document.querySelector('input[name="sales_tax"]').value) || 0;
-        
-        if (document.getElementById('salesTax').checked) {
-            const finalPrice = calculateTaxPrice(price, tax);
-            document.getElementById('finalSalesPrice').textContent = formatNumber(finalPrice);
-        }
-    });
-});

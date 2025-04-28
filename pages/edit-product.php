@@ -135,7 +135,9 @@ $currentImages = !empty($product['images']) ? json_decode($product['images'], tr
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
     <link href="assets/css/edit-product.css" rel="stylesheet">
+    
 </head>
 <body>
 
@@ -446,19 +448,15 @@ $currentImages = !empty($product['images']) ? json_decode($product['images'], tr
                                         <div id="currentImages" class="mb-3">
                                             <?php foreach ($currentImages as $image): ?>
                                             <div class="d-inline-block position-relative m-2">
-                                                <img src="<?php echo htmlspecialchars($image); ?>" alt="Product Image" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
-                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" onclick="removeImage(this, '<?php echo htmlspecialchars($image); ?>')">
+                                                <img src="<?php echo $image; ?>" alt="Product Image" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" onclick="removeImage(this, '<?php echo $image; ?>')">
                                                     <i class="bi bi-x"></i>
                                                 </button>
                                             </div>
                                             <?php endforeach; ?>
                                         </div>
-                                        <form action="upload.php" class="dropzone" id="productImages">
-                                            <div class="dz-message" data-dz-message>
-                                                <span>فایل‌ها را اینجا بکشید و رها کنید یا کلیک کنید</span>
-                                            </div>
-                                        </form>
-                                        <input type="hidden" name="uploaded_files" id="uploadedFiles" value="<?php echo htmlspecialchars(json_encode($currentImages)); ?>">
+                                        <div id="productImages" class="dropzone"></div>
+                                        <input type="hidden" name="uploaded_files[]" id="uploadedFiles">
                                     </div>
                                 </div>
                             </div>
@@ -476,7 +474,183 @@ $currentImages = !empty($product['images']) ? json_decode($product['images'], tr
         </div>
     </div>
 </div>
-<script src="assets/js/edit-product.js"></script>
+
+<style>
+/* استایل Dropzone */
+.dropzone {
+    border: 2px dashed #3498db !important;
+    border-radius: 10px !important;
+    min-height: 150px !important;
+    padding: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: white !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    margin-bottom: 20px !important;
+}
+
+.dropzone:hover {
+    border-color: #2980b9 !important;
+    background-color: #f8f9fa !important;
+}
+
+.dropzone .dz-message {
+    margin: 0 !important;
+    font-size: 1.1em !important;
+    color: #6c757d !important;
+    text-align: center !important;
+}
+
+.dropzone .dz-message .bi {
+    font-size: 2em !important;
+    margin-bottom: 10px !important;
+    color: #3498db !important;
+}
+
+.dropzone .dz-preview {
+    margin: 10px !important;
+    min-height: 100px !important;
+}
+
+.dropzone .dz-preview .dz-image {
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    width: 120px !important;
+    height: 120px !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+.dropzone .dz-preview .dz-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.dropzone .dz-preview .dz-error-message {
+    min-width: 140px !important;
+}
+
+.dropzone .dz-preview.dz-image-preview {
+    background: transparent !important;
+}
+
+.dz-remove {
+    color: #dc3545 !important;
+    text-decoration: none !important;
+    margin-top: 5px !important;
+    display: inline-block !important;
+    font-size: 0.9em !important;
+    padding: 3px 8px !important;
+    border-radius: 5px !important;
+    background-color: rgba(220, 53, 69, 0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+.dz-remove:hover {
+    color: white !important;
+    background-color: #dc3545 !important;
+}
+
+/* استایل تصاویر موجود */
+.existing-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.image-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.image-container:hover img {
+    transform: scale(1.05);
+}
+
+.image-container .remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.image-container:hover .remove-image {
+    opacity: 1;
+}
+
+.image-container .remove-image:hover {
+    background-color: #dc3545;
+    transform: scale(1.1);
+}
+
+/* Loading State */
+.uploading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uploading::before {
+    content: '';
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: spin 1s linear infinite;
+    z-index: 1;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+</style>
+
+<!-- Scripts -->
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
@@ -485,6 +659,25 @@ $currentImages = !empty($product['images']) ? json_decode($product['images'], tr
 <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    Dropzone.autoDiscover = false;
+const dropzone = new Dropzone("#productImages", {
+    url: "upload.php",
+    acceptedFiles: "image/*",
+    maxFiles: 5,
+    maxFilesize: 2,
+    dictDefaultMessage: "تصاویر را اینجا بکشید و رها کنید یا کلیک کنید",
+    addRemoveLinks: true,
+    success: function (file, response) {
+        const uploadedFilesInput = document.getElementById('uploadedFiles');
+        uploadedFilesInput.value += (uploadedFilesInput.value ? ',' : '') + response.filePath;
+    }
+});
+
+function removeImage(button, filePath) {
+    button.parentElement.remove();
+    const uploadedFilesInput = document.getElementById('uploadedFiles');
+    uploadedFilesInput.value = uploadedFilesInput.value.split(',').filter(file => file !== filePath).join(',');
+}
 // پیکربندی Dropzone
 Dropzone.autoDiscover = false;
 $(document).ready(function() {

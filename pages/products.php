@@ -90,7 +90,7 @@ if (isset($_POST['add_to_cart'])) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
-
+<link href="assets/css/style.css" rel="stylesheet">
 <style>
 .product-card {
     transition: all 0.3s ease;
