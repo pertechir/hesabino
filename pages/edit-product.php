@@ -115,21 +115,27 @@ $currentImages = !empty($product['images']) ? json_decode($product['images'], tr
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ویرایش محصول</title>
-    
+        <!-- اضافه کردن jQuery قبل از همه اسکریپت‌ها -->
+<!-- اول jQuery -->
+
+
+
+
+
+
+
+
     <!-- CSS های مورد نیاز -->
     <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
 
 
         <!-- سایر meta tags و CSS ها -->
     
-    <!-- اضافه کردن jQuery قبل از همه اسکریپت‌ها -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     
-    <!-- اضافه کردن Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     
-    <!-- اضافه کردن Dropzone -->
-    <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet" type="text/css" />
+
     
     <!-- سایر CSS ها -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
@@ -648,15 +654,22 @@ $currentImages = !empty($product['images']) ? json_decode($product['images'], tr
 </style>
 
 <!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
+<!-- بعد Select2 -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- بعد Dropzone -->
 <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+
+<!-- و در آخر Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     Dropzone.autoDiscover = false;
@@ -679,7 +692,6 @@ function removeImage(button, filePath) {
     uploadedFilesInput.value = uploadedFilesInput.value.split(',').filter(file => file !== filePath).join(',');
 }
 // پیکربندی Dropzone
-Dropzone.autoDiscover = false;
 $(document).ready(function() {
     // راه‌اندازی Select2
     $('.select2').select2({
@@ -687,39 +699,7 @@ $(document).ready(function() {
     });
 
     // پیکربندی Dropzone
-    var myDropzone = new Dropzone("#productImages", {
-        url: "upload.php",
-        acceptedFiles: "image/*",
-        maxFilesize: 2,
-        maxFiles: 5,
-        addRemoveLinks: true,
-        dictDefaultMessage: "فایل‌ها را اینجا بکشید و رها کنید یا کلیک کنید",
-        dictRemoveFile: "حذف فایل",
-        success: function(file, response) {
-            if (response.success) {
-                var uploadedFiles = JSON.parse($("#uploadedFiles").val() || '[]');
-                uploadedFiles.push(response.filePath);
-                $("#uploadedFiles").val(JSON.stringify(uploadedFiles));
-            }
-        },
-        removedfile: function(file) {
-            var uploadedFiles = JSON.parse($("#uploadedFiles").val() || '[]');
-            if (file.status === 'success') {
-                var response = JSON.parse(file.xhr.response);
-                var index = uploadedFiles.indexOf(response.filePath);
-                if (index !== -1) {
-                    uploadedFiles.splice(index, 1);
-                    $("#uploadedFiles").val(JSON.stringify(uploadedFiles));
-                    
-                    // حذف فایل از سرور
-                    $.post('delete-image.php', {
-                        filePath: response.filePath
-                    });
-                }
-            }
-            file.previewElement.remove();
-        }
-    });
+    
 
     // نمایش تصاویر موجود در Dropzone
     var currentImages = JSON.parse($("#uploadedFiles").val() || '[]');
