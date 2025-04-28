@@ -18,7 +18,7 @@ try {
 } catch(PDOException $e) {
     die("اتصال به پایگاه داده با خطا مواجه شد: " . $e->getMessage());
 }
-
+ini_set('error_log', __DIR__ . '/../logs/debug.log');
 // تنظیمات عمومی
 define('SITE_NAME', 'حسابینو');
 define('SITE_URL', 'http://localhost/hesabino');

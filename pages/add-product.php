@@ -17,82 +17,80 @@ function getLastAccountingCode($pdo) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
     try {
         $pdo->beginTransaction();
+
+        // آماده سازی داده‌ها
+        $data = [
+            'name' => $_POST['name'],
+            'accounting_code' => !empty($_POST['custom_code']) ? $_POST['custom_code'] : getLastAccountingCode($pdo),
+            'barcode' => $_POST['barcode'],
+            'category_id' => $_POST['category_id'],
+            'sales_price' => $_POST['sales_price'],
+            'sales_description' => $_POST['sales_description'],
+            'purchase_price' => $_POST['purchase_price'],
+            'purchase_description' => $_POST['purchase_description'],
+            'main_unit' => $_POST['main_unit'],
+            'sub_unit' => $_POST['sub_unit'] ?? null,
+            'conversion_factor' => $_POST['conversion_factor'] ?? null,
+            'initial_stock' => $_POST['initial_stock'],
+            'current_stock' => $_POST['initial_stock'], // موجودی فعلی برابر با موجودی اولیه
+            'reorder_point' => $_POST['reorder_point'],
+            'minimum_stock' => $_POST['minimum_stock'],
+            'maximum_stock' => !empty($_POST['maximum_stock']) ? $_POST['maximum_stock'] : null,
+            'minimum_order' => $_POST['minimum_order'],
+            'wait_time' => $_POST['wait_time'],
+            'storage_location' => $_POST['storage_location'] ?? null,
+            'storage_note' => $_POST['storage_note'] ?? null,
+            'sales_tax' => $_POST['sales_tax'] ?? 0,
+            'purchase_tax' => $_POST['purchase_tax'] ?? 0,
+            'tax_type' => $_POST['tax_type'] ?? null,
+            'tax_code' => $_POST['tax_code'] ?? null,
+            'tax_unit' => $_POST['tax_unit'] ?? null,
+            'is_sales_taxable' => isset($_POST['is_sales_taxable']) ? 1 : 0,
+            'is_purchase_taxable' => isset($_POST['is_purchase_taxable']) ? 1 : 0,
+            'inventory_control' => isset($_POST['inventory_control']) ? 1 : 0
+        ];
+
+        // ساخت query
+        $fields = implode(', ', array_keys($data));
+        $values = implode(', ', array_fill(0, count($data), '?'));
         
-        // مدیریت آپلود تصویر با Dropzone.js
-        $images = [];
-        if (isset($_FILES['images'])) {
-            $upload_dir = 'uploads/products/';
-            foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
-                if ($_FILES['images']['error'][$key] == 0) {
-                    $file_name = time() . '_' . $_FILES['images']['name'][$key];
-                    move_uploaded_file($tmp_name, $upload_dir . $file_name);
-                    $images[] = $file_name;
-                }
-            }
+        $sql = "INSERT INTO products ($fields) VALUES ($values)";
+        
+        // اجرای query
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array_values($data));
+        
+        // ثبت تراکنش موجودی اولیه
+        $product_id = $pdo->lastInsertId();
+        
+        if ($data['initial_stock'] > 0) {
+            $stmt = $pdo->prepare("
+                INSERT INTO inventory_transactions 
+                (product_id, transaction_type, quantity, previous_stock, new_stock, note)
+                VALUES (?, 'adjustment', ?, 0, ?, 'موجودی اولیه')
+            ");
+            $stmt->execute([$product_id, $data['initial_stock'], $data['initial_stock']]);
         }
 
-        // درج اطلاعات محصول
-        $stmt = $pdo->prepare("
-            INSERT INTO products (
-                name, accounting_code, barcode, category_id,
-                sales_price, sales_description, purchase_price, purchase_description,
-                partner_price, wholesale_price, usd_price, staff_price, shop_price,
-                main_unit, sub_unit, conversion_factor,
-                inventory_control, reorder_point, minimum_order, wait_time,
-                sales_tax, purchase_tax, tax_type, tax_code, tax_unit,
-                is_sales_taxable, is_purchase_taxable,
-                images, created_at
-            ) VALUES (
-                ?, ?, ?, ?, 
-                ?, ?, ?, ?,
-                ?, ?, ?, ?, ?,
-                ?, ?, ?,
-                ?, ?, ?, ?,
-                ?, ?, ?, ?, ?,
-                ?, ?,
-                ?, NOW()
-            )
-        ");
+        // ذخیره تصاویر
+        if (isset($_POST['uploaded_files']) && is_array($_POST['uploaded_files'])) {
+            $stmt = $pdo->prepare("UPDATE products SET images = ? WHERE id = ?");
+            $stmt->execute([json_encode($_POST['uploaded_files']), $product_id]);
+        }
 
-        $stmt->execute([
-            $_POST['name'],
-            $_POST['custom_code'] ? $_POST['custom_code'] : getLastAccountingCode($pdo),
-            $_POST['barcode'],
-            $_POST['category_id'],
-            $_POST['sales_price'],
-            $_POST['sales_description'],
-            $_POST['purchase_price'],
-            $_POST['purchase_description'],
-            $_POST['partner_price'],
-            $_POST['wholesale_price'],
-            $_POST['usd_price'],
-            $_POST['staff_price'],
-            $_POST['shop_price'],
-            $_POST['main_unit'],
-            $_POST['sub_unit'],
-            $_POST['conversion_factor'],
-            isset($_POST['inventory_control']) ? 1 : 0,
-            $_POST['reorder_point'],
-            $_POST['minimum_order'],
-            $_POST['wait_time'],
-            $_POST['sales_tax'],
-            $_POST['purchase_tax'],
-            $_POST['tax_type'],
-            $_POST['tax_code'],
-            $_POST['tax_unit'],
-            isset($_POST['is_sales_taxable']) ? 1 : 0,
-            isset($_POST['is_purchase_taxable']) ? 1 : 0,
-            json_encode($images)
-        ]);
-        
         $pdo->commit();
-        $success_message = "محصول با موفقیت افزوده شد.";
+        $_SESSION['success_message'] = "محصول با موفقیت افزوده شد.";
+        header('Location: index.php?page=products'); // تغییر مسیر به لیست محصولات
+        exit;
         
     } catch (Exception $e) {
         $pdo->rollBack();
         $error_message = "خطا در افزودن محصول: " . $e->getMessage();
+        // برای دیباگ:
+        error_log("Error adding product: " . $e->getMessage());
     }
 }
+
 ?>
 
 <!-- اضافه کردن CSS های مورد نیاز -->
@@ -310,28 +308,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="form-check mb-4">
-                                            <input type="checkbox" name="inventory_control" class="form-check-input" id="inventoryControl">
+                                            <input type="checkbox" name="inventory_control" class="form-check-input" id="inventoryControl" checked>
                                             <label class="form-check-label">کنترل موجودی</label>
                                         </div>
                                         
-                                        <div id="inventorySettings" style="display:none">
+                                        <div id="inventorySettings">
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
+                                                        <label class="form-label">موجودی اولیه</label>
+                                                        <input type="number" name="initial_stock" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
                                                         <label class="form-label">نقطه سفارش</label>
-                                                        <input type="number" name="reorder_point" class="form-control">
+                                                        <input type="number" name="reorder_point" class="form-control" required>
+                                                        <div class="form-text">وقتی موجودی به این مقدار برسد، هشدار داده می‌شود</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">حداقل موجودی</label>
+                                                        <input type="number" name="minimum_stock" class="form-control" required>
+                                                        <div class="form-text">حداقل موجودی مجاز</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">حداکثر موجودی</label>
+                                                        <input type="number" name="maximum_stock" class="form-control">
+                                                        <div class="form-text">حداکثر موجودی مجاز برای انبار</div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
                                                         <label class="form-label">حداقل سفارش</label>
-                                                        <input type="number" name="minimum_order" class="form-control">
+                                                        <input type="number" name="minimum_order" class="form-control" required>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
                                                         <label class="form-label">زمان انتظار (روز)</label>
                                                         <input type="number" name="wait_time" class="form-control">
+                                                        <div class="form-text">مدت زمان لازم برای رسیدن سفارش جدید</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">محل نگهداری در انبار</label>
+                                                        <input type="text" name="storage_location" class="form-control">
+                                                        <div class="form-text">مثال: راهرو A، قفسه 3، ردیف 2</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">یادداشت انبار</label>
+                                                        <textarea name="storage_note" class="form-control" rows="2"></textarea>
                                                     </div>
                                                 </div>
                                             </div>

@@ -1,5 +1,108 @@
+// اطمینان از یکبار اجرا شدن
+let dropzoneInitialized = false;
+
+// منتظر لود شدن jQuery
+$(document).ready(function() {
+    initializeComponents();
+});
+
+function initializeComponents() {
+    initSelect2();
+    initDropzone();
+    initInventoryControls();
+    setupFormValidation();
+}
+
+function initSelect2() {
+    $('.select2').select2({
+        theme: 'bootstrap-5',
+        dir: 'rtl'
+    });
+}
+
+function initDropzone() {
+    if (!dropzoneInitialized) {
+        Dropzone.autoDiscover = false;
+        
+        const dropzoneElement = document.getElementById('productImages');
+        if (dropzoneElement) {
+            const myDropzone = new Dropzone("#productImages", {
+                url: "upload.php",
+                paramName: "file",
+                maxFiles: 5,
+                maxFilesize: 2,
+                acceptedFiles: "image/*",
+                dictDefaultMessage: '<div class="text-center"><i class="bi bi-cloud-upload display-4"></i><br>تصاویر را اینجا رها کنید یا کلیک کنید</div>',
+                addRemoveLinks: true,
+                dictRemoveFile: "حذف",
+                dictCancelUpload: "لغو",
+                init: function() {
+                    this.on("success", function(file, response) {
+                        try {
+                            const data = JSON.parse(response);
+                            if (data.success) {
+                                file.serverFileName = data.filename;
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    name: 'uploaded_files[]',
+                                    value: data.filename
+                                }).appendTo('#addProductForm');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing upload response:', e);
+                        }
+                    });
+                }
+            });
+            dropzoneInitialized = true;
+        }
+    }
+}
+
+function initInventoryControls() {
+    // نمایش همیشگی تنظیمات موجودی
+    $('#inventorySettings').show();
+    
+    // مدیریت فیلدهای عددی موجودی
+    $('input[type="number"]').on('input', function() {
+        validateInventoryNumbers(this);
+    });
+}
+
+function validateInventoryNumbers(input) {
+    const value = parseInt(input.value);
+    const min = parseInt(input.min) || 0;
+    const max = parseInt(input.max) || Infinity;
+    
+    if (value < min) input.value = min;
+    if (value > max) input.value = max;
+    
+    // بررسی موجودی و نمایش هشدار
+    if (input.name === 'initial_stock') {
+        const reorderPoint = parseInt($('input[name="reorder_point"]').val()) || 0;
+        const minimumStock = parseInt($('input[name="minimum_stock"]').val()) || 0;
+        
+        if (value <= minimumStock) {
+            showInventoryAlert('danger', 'موجودی کمتر از حداقل مجاز است!');
+        } else if (value <= reorderPoint) {
+            showInventoryAlert('warning', 'موجودی به نقطه سفارش رسیده است.');
+        }
+    }
+}
+
+function showInventoryAlert(type, message) {
+    const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show mt-3" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    $('#inventorySettings').prepend(alertHtml);
+}
+
 // منتظر لود شدن کامل صفحه
-document.addEventListener('DOMContentLoaded', function() {
+
+document.addEventListener('DOMContentLoaded', function () {
     initializeComponents();
 });
 
